@@ -1,0 +1,36 @@
+setwd("c:/Users/mqbpjhr4/Documents/CHAMP")
+alldata<-read.table ("LMStable.csv",header=TRUE, sep=",")
+library(lme4)
+library(arm)
+
+GLM1 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$PostcodeDecile)+ as.factor(alldata$SchoolCode)+as.factor(alldata$AcademicYear), data = alldata)
+#Model converges
+
+GLM2 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$PostcodeDecile)+ as.factor(alldata$SchoolCode), data = alldata)
+anova(GLM1, GLM2, test = "Chisq")
+#No significant change to model fit in dropping academic year
+
+GLM3 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$PostcodeDecile), data = alldata)
+GLM3a <- update(GLM1, subset = !is.na(alldata$SchoolCode))
+anova(GLM2, GLM3a, test = "Chisq")
+
+#GLM1 and GLM2 cannot be directly compared because school code contains missing data (low frequency school codes removed) 
+#rerunning GLM1 with missing postcode data removed allows ANOVA comparison of the models with equal sized datasets
+#This can also be acheived by removing all missing data at the start
+#However, ChildID, PostcodeDecile and Ethnicity all have missing data, so this removes a lot of records that have other useful information
+#GLM3a has lower residual deviance than GLM2 and is a significantly better fit
+#School is later included in the VI model as a random rather than fixed effect
+#Options for anova tests= Rao (Rao's efficient score), LRT (likelihood ratio test), F, Chisq, Cp (Mallow's Cp statistic)
+#I used Chisq for GLM and LRT for the VI model
+
+GLM4 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity, data = alldata)
+GLM4a <- update(GLM4, subset = !is.na(alldata$PostcodeDecile))
+anova(GLM3, GLM4a, test = "Chisq",na.action=na.omit)
+#Postcode decile is important to include, removing it causes significant loss of model fit. 
+
+GLM5 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender+as.factor(alldata$PostcodeDecile), data = alldata)
+anova(GLM3, GLM5, test = "Chisq")
+#Ethnicity is important to the model, removing it causes significant loss of model fit
+
+summary(GLM3)
+
