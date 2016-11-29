@@ -48,6 +48,9 @@ bb<-bdata[bdata$multbd=="y",]
 champ$ChildID<-ifelse(champ$ChildID %in% bb$ChildID,paste("NA"),paste(champ$ChildID))
 #27408 records are affected
 
+levels(champ$Ethnicity)
+#Categories S, Z and 99 are not genuine ethnicity groups but missing data, so need to be renamed
+levels(champ$Ethnicity)[c(1,2,18,19)]<-"NA"
 #Write to file
 
 LMStable<-file(paste("LMStable.csv"), open="w")
