@@ -40,6 +40,14 @@ dd<-dedupedk[dedupedk$d=="y",]
 champ$IsAccountRegistered<-ifelse(champ$ChildID %in% dd$ChildID,paste("NA"),paste(champ$IsAccountRegistered))
 #8517 reg. statuses removed from measurements
 
+#Replace child IDs that have been reassigned
+bdata <-unique(champ[, c(1,5)] )
+head(bdata)
+bdata$multbd<-ifelse(duplicated(bdata$ChildID),paste("y"),paste("n"))
+bb<-bdata[bdata$multbd=="y",]
+champ$ChildID<-ifelse(champ$ChildID %in% bb$ChildID,paste("NA"),paste(champ$ChildID))
+#27408 records are affected
+
 #Write to file
 
 LMStable<-file(paste("LMStable.csv"), open="w")
