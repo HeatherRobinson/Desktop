@@ -1,0 +1,49 @@
+setwd("c:/Users/mqbpjhr4/Documents/CHAMP")
+champtable<-read.table("champ.csv", header=T,sep=",")
+library(lubridate)
+library(dplyr)
+
+#CHECK FOR WEIGHT AND HEIGHT DATA ENTRY ERRORS. 
+#USE NHS 'VALIDATION OF CHILD MEASUREMENT PROGRAMME DATA' REPORT 2016 FOR ERROR REJECTION CUTOFFS 
+#CUTOFFS USED FOR RECEPTION AND YR6 ONLY-Update this
+champ<-subset(champtable, champtable$HeightCM>=70 & champtable$HeightCM<=200 & champtable$WeightKG>=7 & champtable$WeightKG<=160)
+s<-table(champtable$SchoolCode)
+s = as.data.frame(s)
+s<-s[s$Freq>50,]
+champ$SchoolCode<-ifelse(champ$SchoolCode %in% s$Var1,champ$SchoolCode,"NA") 
+attach(champ)
+
+#Create additional derived variables
+champ$BMI<-WeightKG/(HeightCM/100)^2
+ndate1<-paste(DateOfBirth,"-01",sep=""); ndate1
+ndate1<-(as.Date(ndate1))
+ndate2<-paste(AssessmentDate,"-01",sep=""); ndate2
+ndate2<-(as.Date(ndate2))
+champ$ageattest<-floor(difftime(strptime(ndate2, format="%Y-%m-%d"),strptime(ndate1, format="%Y-%m-%d"),units="weeks")/52)
+champ$ageattest<-as.integer(champ$ageattest)
+attach(champ)
+#The data does not have day values within the dates, so these are assigned as the 1st of the month for R purposes.
+
+#REMOVE OUT OF RANGE AGES DUE TO DATE ENTRY ERRORS
+champ<-subset(champ, champ$ageattest<=11 & champ$ageattest>=4)
+attach(champ)
+
+#Note inconsistent registration status as NA
+uneven<-aggregate(champ[,9],by=list(as.numeric(champ$ChildID)),FUN=mean)
+either<-uneven[uneven$x<1&uneven$x>0,]
+#Full details for children wqith inconsistent reg
+k<-champ[champ$ChildID %in% either$Group.1,]
+head(k)
+dedupedk <- unique(k[, c(1,5)] )
+dedupedk$d<-ifelse(duplicated(dedupedk$ChildID),paste("y"),paste("n"))
+dd<-dedupedk[dedupedk$d=="y",]
+champ$IsAccountRegistered<-ifelse(champ$ChildID %in% dd$ChildID,paste("NA"),paste(champ$IsAccountRegistered))
+#8517 reg. statuses removed from measurements
+
+#Write to file
+
+LMStable<-file(paste("LMStable.csv"), open="w")
+cat("ChildID","SchoolCode","AcademicYear","AssessmentDate","DateOfBirth","Gender","HeightCM","WeightKG","BMI","IsAccountRegistered","Ethnicity","PostcodeDecile","Weight8WeekResultGrms","Weight9MonthResultGrms","Weight2YearResultGrms","ageattest","\n", sep=",",file="LMStable.csv",append=TRUE)
+for (n in 1:68702){cat((paste(champ$ChildID[n])),(paste(champ$SchoolCode[n])),(paste(champ$AcademicYear[n])),(paste(champ$AssessmentDate[n])),(paste(champ$DateOfBirth[n])),(paste(champ$Gender[n])), (paste(champ$HeightCM[n])),(paste(champ$WeightKG[n])),(paste(champ$BMI[n])),(paste(champ$IsAccountRegistered[n])),(paste(champ$Ethnicity[n])),(paste(champ$PostcodeDecile[n])),(paste(champ$Weight8WeekResultGrms[n])),(paste(champ$Weight9MonthResultGrms[n])),(paste(champ$Weight2YearResultGrms[n])),(paste(champ$ageattest[n])),"\n", file="LMStable.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+} 
+#USE the excel plugin LMSGrowth to add SDs from BMIs and save table.
