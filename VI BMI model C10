@@ -1,0 +1,8 @@
+library(lme4)
+#VARIABLE INTERCEPTS MODEL
+VI1<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity*subsad$PostcodeDecile+subsad$IsAccountRegistered+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
+summary(VI1)
+#model converges
+VI1b<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity+subsad$PostcodeDecile+subsad$IsAccountRegistered+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
+anova(VI1,VI1b,test="LRT")
+#The interaction between ethnicity and postcode decile is important
