@@ -3,14 +3,14 @@ alldata<-read.table ("LMStable.csv",header=TRUE, sep=",")
 library(lme4)
 library(arm)
 
-GLM1 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$PostcodeDecile)+ as.factor(alldata$SchoolCode)+as.factor(alldata$AcademicYear), data = alldata)
+GLM1 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$IsAccountRegistered)+as.factor(alldata$PostcodeDecile)+ as.factor(alldata$SchoolCode)+as.factor(alldata$AcademicYear), data = alldata)
 #Model converges
 
-GLM2 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$PostcodeDecile)+ as.factor(alldata$SchoolCode), data = alldata)
+GLM2 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$IsAccountRegistered)+as.factor(alldata$PostcodeDecile)+ as.factor(alldata$SchoolCode), data = alldata)
 anova(GLM1, GLM2, test = "Chisq")
 #No significant change to model fit in dropping academic year
 
-GLM3 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$PostcodeDecile), data = alldata)
+GLM3 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$IsAccountRegistered)+as.factor(alldata$PostcodeDecile), data = alldata)
 GLM3a <- update(GLM1, subset = !is.na(alldata$SchoolCode))
 anova(GLM2, GLM3a, test = "Chisq")
 
@@ -20,17 +20,25 @@ anova(GLM2, GLM3a, test = "Chisq")
 #However, ChildID, PostcodeDecile and Ethnicity all have missing data, so this removes a lot of records that have other useful information
 #GLM3a has lower residual deviance than GLM2 and is a significantly better fit
 #School is later included in the VI model as a random rather than fixed effect
+
 #Options for anova tests= Rao (Rao's efficient score), LRT (likelihood ratio test), F, Chisq, Cp (Mallow's Cp statistic)
 #I used Chisq for GLM and LRT for the VI model
 
-GLM4 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity, data = alldata)
-GLM4a <- update(GLM4, subset = !is.na(alldata$PostcodeDecile))
+GLM4 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity+as.factor(alldata$PostcodeDecile), data = alldata)
+GLM4a <- update(GLM4, subset = !is.na(alldata$IsAccountRegistered))
+#Registration is not a predictor, possibly as it is time dependent
 anova(GLM3, GLM4a, test = "Chisq",na.action=na.omit)
+
+GLM5 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender +alldata$Ethnicity, data = alldata)
+GLM5a <- update(GLM4, subset = !is.na(alldata$PostcodeDecile))
+anova(GLM4, GLM5a, test = "Chisq")
+
 #Postcode decile is important to include, removing it causes significant loss of model fit. 
 
-GLM5 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender+as.factor(alldata$PostcodeDecile), data = alldata)
-anova(GLM3, GLM5, test = "Chisq")
+GLM6 <- glm(alldata$SDS_BMI ~ alldata$ageattest + alldata$Gender+as.factor(alldata$PostcodeDecile), data = alldata)anova(GLM4, GLM6a, test = "Chisq")
+GLM6a <- update(GLM6, subset = !is.na(alldata$Ethnicity))
 #Ethnicity is important to the model, removing it causes significant loss of model fit
+anova(GLM4, GLM6a, test = "Chisq")
 
-summary(GLM3)
-
+summary(GLM4)
+#Postcode deciles 1 and 10 have insufficient data to be analysed within the model
