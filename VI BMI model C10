@@ -1,6 +1,10 @@
 library(lme4)
 #VARIABLE INTERCEPTS MODEL
-VI1<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity*subsad$PostcodeDecile+subsad$IsAccountRegistered+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
+subsad<-alldata[!is.na(alldata$Ethnicity)&!is.na(alldata$PostcodeDecile)&!is.na(alldata$IsAccountRegistered),]
+subsad$SchoolCode<-as.factor(subsad$SchoolCode)
+subsad$ChildID<-as.factor(subsad$ChildID)
+subsad$IsAccountRegistered<-as.factor(subsad$IsAccountRegistered)
+VI1<- lmer(subsad$SDS_BMI~subsad$ageattest*subsad$Gender+subsad$Ethnicity*subsad$PostcodeDecile+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
 summary(VI1)
 #model converges
 VI1b<- lmer(subsad$SDS_BMI~ subsad$ageattest*subsad$Gender + subsad$Ethnicity+subsad$PostcodeDecile+subsad$IsAccountRegistered+(1|subsad$ChildID)+(1|subsad$SchoolCode),REML=FALSE)
