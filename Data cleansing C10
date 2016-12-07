@@ -25,14 +25,24 @@ attach(champ)
 #The data does not have day values within the dates, so these are assigned as the 1st of the month for R purposes.
 champ$BirthMonth<-month(ndate2, label = FALSE, abbr = TRUE)
 champ$BirthMonth<-as.numeric(champ$BirthMonth)
-champ$SchoolYear<-"Rec"
+champ$SchoolYear<-"NA"
+champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest==4,paste("Rec"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth<9&champ$ageattest==5,paste("Rec"),champ$SchoolYear)
 champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest==5,paste("1"),champ$SchoolYear)
 champ$SchoolYear<-ifelse(champ$BirthMonth<9&champ$ageattest==6,paste("1"),champ$SchoolYear)
-champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest==65,paste("2"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest==6,paste("2"),champ$SchoolYear)
 champ$SchoolYear<-ifelse(champ$BirthMonth<9&champ$ageattest==7,paste("2"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest==7,paste("3"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth<9&champ$ageattest==8,paste("3"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest==8,paste("4"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth<9&champ$ageattest==9,paste("4"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest==9,paste("5"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth<9&champ$ageattest==10,paste("5"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest==10,paste("6"),champ$SchoolYear)
+champ$SchoolYear<-ifelse(champ$BirthMonth<9&champ$ageattest==11,paste("6"),champ$SchoolYear)
 
 #REMOVE OUT OF RANGE AGES DUE TO DATE ENTRY ERRORS
-champ<-subset(champ, champ$ageattest<=12 & champ$ageattest>=4)
+champ<-subset(champ, champ$ageattest<=11 & champ$ageattest>=4)
 attach(champ)
 
 #Note inconsistent registration status as NA
