@@ -20,7 +20,6 @@ ndate1<-(as.Date(ndate1))
 ndate2<-paste(AssessmentDate,"-01",sep=""); ndate2
 ndate2<-(as.Date(ndate2))
 champ$ageattest<-floor(difftime(strptime(ndate2, format="%Y-%m-%d"),strptime(ndate1, format="%Y-%m-%d"),units="weeks"))
-champ$ageattest<-champ$ageattest/52
 attach(champ)
 #The data does not have day values within the dates, so these are assigned as the 1st of the month for R purposes.
 champ$BirthMonth<-month(ndate2, label = FALSE, abbr = TRUE)
@@ -42,7 +41,7 @@ champ$SchoolYear<-ifelse(champ$BirthMonth>=9&champ$ageattest>520&champ$ageattest
 champ$SchoolYear<-ifelse(champ$BirthMonth<9&champ$ageattest>572&champ$ageattest<624,paste("6"),champ$SchoolYear)
 
 #REMOVE OUT OF RANGE AGES DUE TO DATE ENTRY ERRORS
-champ<-subset(champ, champ$ageattest<=11 & champ$ageattest>=4)
+champ<-subset(champ, champ$ageattest<=624 & champ$ageattest>=208)
 attach(champ)
 
 #Note inconsistent registration status as NA
@@ -71,7 +70,7 @@ levels(champ$Ethnicity)[c(1,2,18,19)]<-"NA"
 #Write to file
 
 LMStable<-file(paste("LMStable.csv"), open="w")
-cat("ChildID","SchoolCode","AcademicYear","AssessmentDate","DateOfBirth","Gender","HeightCM","WeightKG","BMI","IsAccountRegistered","Ethnicity","PostcodeDecile","Weight8WeekResultGrms","Weight9MonthResultGrms","Weight2YearResultGrms","ageattest","\n", sep=",",file="LMStable.csv",append=TRUE)
-for (n in 1:68702){cat((paste(champ$ChildID[n])),(paste(champ$SchoolCode[n])),(paste(champ$AcademicYear[n])),(paste(champ$AssessmentDate[n])),(paste(champ$DateOfBirth[n])),(paste(champ$Gender[n])), (paste(champ$HeightCM[n])),(paste(champ$WeightKG[n])),(paste(champ$BMI[n])),(paste(champ$IsAccountRegistered[n])),(paste(champ$Ethnicity[n])),(paste(champ$PostcodeDecile[n])),(paste(champ$Weight8WeekResultGrms[n])),(paste(champ$Weight9MonthResultGrms[n])),(paste(champ$Weight2YearResultGrms[n])),(paste(champ$ageattest[n])),"\n", file="LMStable.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
+cat("ChildID","SchoolCode","SchoolYear","AcademicYear","AssessmentDate","DateOfBirth","Gender","HeightCM","WeightKG","BMI","IsAccountRegistered","Ethnicity","PostcodeDecile","Weight8WeekResultGrms","Weight9MonthResultGrms","Weight2YearResultGrms","ageattest","\n", sep=",",file="LMStable.csv",append=TRUE)
+for (n in 1:68702){cat((paste(champ$ChildID[n])),(paste(champ$SchoolCode[n])),(paste(champ$SchoolYear[n])),(paste(champ$AcademicYear[n])),(paste(champ$AssessmentDate[n])),(paste(champ$DateOfBirth[n])),(paste(champ$Gender[n])), (paste(champ$HeightCM[n])),(paste(champ$WeightKG[n])),(paste(champ$BMI[n])),(paste(champ$IsAccountRegistered[n])),(paste(champ$Ethnicity[n])),(paste(champ$PostcodeDecile[n])),(paste(champ$Weight8WeekResultGrms[n])),(paste(champ$Weight9MonthResultGrms[n])),(paste(champ$Weight2YearResultGrms[n])),(paste(champ$ageattest[n])),"\n", file="LMStable.csv", sep=",", fill=FALSE, labels=NULL, append=TRUE)
 } 
 #USE the excel plugin LMSGrowth to add SDs from BMIs and save table.
