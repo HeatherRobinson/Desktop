@@ -19,8 +19,8 @@ ndate1<-paste(DateOfBirth,"-01",sep=""); ndate1
 ndate1<-(as.Date(ndate1))
 ndate2<-paste(AssessmentDate,"-01",sep=""); ndate2
 ndate2<-(as.Date(ndate2))
-champ$ageattest<-floor(difftime(strptime(ndate2, format="%Y-%m-%d"),strptime(ndate1, format="%Y-%m-%d"),units="weeks")/52)
-champ$ageattest<-as.integer(champ$ageattest)
+champ$ageattest<-floor(difftime(strptime(ndate2, format="%Y-%m-%d"),strptime(ndate1, format="%Y-%m-%d"),units="weeks"))
+champ$ageattest<-champ$ageattest/52
 attach(champ)
 #The data does not have day values within the dates, so these are assigned as the 1st of the month for R purposes.
 champ$BirthMonth<-month(ndate2, label = FALSE, abbr = TRUE)
